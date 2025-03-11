@@ -11,7 +11,6 @@ struct node
 	struct node *next;
 }*hashTable[TABLE_SIZE], *curr;
 
-//Fungsi untuk membuat node baru
 struct node* newNode(char data[]){
 	struct node* createNode = (struct node*)malloc(sizeof(struct node));
 	strcpy(createNode->data, data);
