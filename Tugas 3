@@ -1,0 +1,140 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+
+#define TABLE_SIZE 10
+
+struct node
+{
+	char data[100];
+	struct node *next;
+}*hashTable[TABLE_SIZE], *curr;
+
+//Fungsi untuk membuat node baru
+struct node* newNode(char data[]){
+	struct node* createNode = (struct node*)malloc(sizeof(struct node));
+	strcpy(createNode->data, data);
+	createNode->next = NULL;
+	return createNode;
+}
+
+//First Character 
+int hashFunction(char data[]){
+	int hashKey = -1;
+	char firstChar;
+	//Ambil karakter pertama
+	firstChar = data[0];
+	// A -> a (97) - 97 = 0
+	hashKey = tolower(firstChar) - 97;
+	return hashKey % TABLE_SIZE;
+}
+
+//METHOD DIVISION
+int divHash(char data[]){
+	int key = tolower(data[0]);
+	return key % TABLE_SIZE;
+}
+
+//METHOD FOLDING
+int foldingHash(char data[])
+{
+	int key = tolower(data[0]); 
+	int part1 = key / 1000;  // Ambil 4 digit pertama 
+	int part2 = key % 1000;  // Ambil 4 digit terakhir
+	return (part1 + part2) % TABLE_SIZE;
+}
+
+//METHOD MID-SQUARE 
+int midSquareHash(char data[]){
+	int key = tolower(data[0]);
+	int squared = key * key;
+	int mid = (squared / 100) % 10;
+	return mid % TABLE_SIZE;
+}
+
+//METHOD DIGIT EXTRACTION
+int digitExtractionHash(char data[]){
+	int key = tolower(data[0]);
+	return (key / 10) % TABLE_SIZE;
+}
+
+//ETHOD ROTATION 
+int rotationHash(char data[]){
+	int key = tolower(data[0]);
+	return ((key >> 1) | (key << 3)) % TABLE_SIZE;
+}
+
+//Chaining
+void insertChaining(int hashKey, char data[]){
+	printf("Data: %s, Hash Value: %d\n", data, hashKey);
+
+	struct node* new_node = newNode(data);
+	if (hashTable[hashKey] == NULL){
+		hashTable[hashKey] = new_node;
+	}else{
+		struct node* temp = hashTable[hashKey];
+		while (temp->next != NULL){
+			temp = temp->next;
+		}
+		temp->next = new_node;
+	}
+}
+
+void viewHashTable(){
+	printf("\n=== Hash Table ===\n");
+	for(int i = 0; i < TABLE_SIZE; i++){
+		printf("Hash Table Index [%d]: ", i);
+		curr = hashTable[i];
+		while(curr != NULL){
+			printf("%s -> ", curr->data);
+			curr = curr->next;
+		}
+		printf("NULL\n");
+	}
+	printf("==================\n");
+}
+
+int main(){
+	char data[100];
+	int choice;
+
+	printf("Pilih metode Hash Function:\n1. First Character\n2. Division\n3. Folding\n4. Mid-Square\n5. Digit Extraction\n6. Rotation\nChoice: ");
+	scanf("%d", &choice);
+
+	int (*selectedHashFunction)(char[]);
+
+	if (choice == 1)
+		selectedHashFunction = hashFunction;
+	else if (choice == 2)
+		selectedHashFunction = divHash;
+	else if (choice == 3)
+		selectedHashFunction = foldingHash;
+	else if (choice == 4)
+		selectedHashFunction = midSquareHash;
+	else if (choice == 5)
+		selectedHashFunction = digitExtractionHash;
+	else if (choice == 6)
+		selectedHashFunction = rotationHash;
+	else{
+		printf("Pilihan tidak valid!\n");
+		return 1;
+	}
+
+	do{
+		printf("Input Data (ketik 'exit' untuk keluar): ");
+		scanf("%s", data); 
+		
+		if (strcmp(data, "exit") == 0) break;
+
+		int hashKey = selectedHashFunction(data);
+		insertChaining(hashKey, data);
+
+		viewHashTable();
+	} while (true);
+
+	printf("\nFinal Hash Table:\n");
+	viewHashTable();
+
+	return 0;
+}
