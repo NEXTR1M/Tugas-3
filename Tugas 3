@@ -37,8 +37,7 @@ int divHash(char data[]){
 }
 
 //METHOD FOLDING
-int foldingHash(char data[])
-{
+int foldingHash(char data[]){
 	int key = tolower(data[0]); 
 	int part1 = key / 1000;  // Ambil 4 digit pertama 
 	int part2 = key % 1000;  // Ambil 4 digit terakhir
